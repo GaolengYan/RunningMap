@@ -1,0 +1,146 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             xmlns:app="http://schemas.android.com/apk/res-auto"
+             xmlns:tools="http://schemas.android.com/tools"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             tools:context="com.garry.runningmap.usermodule.RegisterFragment">
+
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="输入邮箱"
+            android:textSize="18sp"
+            android:layout_marginLeft="27dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            android:layout_marginBottom="8dp"
+            app:layout_constraintBottom_toTopOf="@+id/textView2"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="8dp"
+            android:id="@+id/textView3"/>
+
+        <EditText
+            android:id="@+id/regist_mail"
+            android:layout_width="263dp"
+            android:layout_height="40dp"
+            android:hint="    如 RunningMap@Garry.com"
+            android:layout_marginLeft="8dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            android:layout_marginRight="8dp"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="114dp"
+            app:layout_constraintHorizontal_bias="0.504"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="请确保您输入的是有效邮箱"
+            android:id="@+id/textView5"
+            android:layout_marginLeft="8dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            android:layout_marginRight="8dp"
+            app:layout_constraintRight_toRightOf="parent"
+            android:layout_marginTop="8dp"
+            app:layout_constraintTop_toBottomOf="@+id/regist_mail"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="输入用户名"
+            android:textSize="18sp"
+            android:id="@+id/textView2"
+            android:layout_marginLeft="27dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="204dp"/>
+
+        <EditText
+            android:hint="     如 暗影之龙 或 消逝的记忆"
+            android:id="@+id/regist_username"
+            android:layout_width="263dp"
+            android:layout_height="40dp"
+            android:layout_marginLeft="8dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            android:layout_marginRight="8dp"
+            app:layout_constraintRight_toRightOf="parent"
+            android:layout_marginTop="54dp"
+            app:layout_constraintTop_toBottomOf="@+id/textView5"
+            app:layout_constraintHorizontal_bias="0.504"/>
+        <TextView
+            android:text="输入密码"
+            android:textSize="18sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="27dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            android:layout_marginTop="186dp"
+            app:layout_constraintTop_toBottomOf="@+id/textView3"/>
+        <EditText
+            android:id="@+id/regist_password"
+            android:layout_width="263dp"
+            android:layout_height="40dp"
+            android:hint="6到10个字母数字 如ILoveGarry"
+            android:layout_marginLeft="8dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            android:layout_marginRight="8dp"
+            app:layout_constraintRight_toRightOf="parent"
+            android:layout_marginTop="63dp"
+            app:layout_constraintTop_toBottomOf="@+id/regist_username"
+            app:layout_constraintHorizontal_bias="0.504"/>
+        <TextView
+            android:text="再次确认密码"
+            android:textSize="18sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="394dp"/>
+        <EditText
+            android:id="@+id/regist_remarkpassword"
+            android:layout_width="263dp"
+            android:layout_height="40dp"
+            android:hint="   再输入一次密码，然后记住它"
+            android:layout_marginLeft="8dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            android:layout_marginRight="8dp"
+            app:layout_constraintRight_toRightOf="parent"
+            android:layout_marginTop="49dp"
+            app:layout_constraintTop_toBottomOf="@+id/regist_password"
+            app:layout_constraintHorizontal_bias="0.504"/>
+
+        <Button
+            android:id="@+id/regist_submit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="注册"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginBottom="30dp"
+            android:layout_marginLeft="8dp"
+            app:layout_constraintLeft_toLeftOf="@+id/guideline"/>
+
+        <Button
+            android:id="@+id/go_back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="返回"
+            android:layout_marginBottom="30dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintRight_toLeftOf="@+id/guideline"
+            android:layout_marginRight="8dp"/>
+
+        <android.support.constraint.Guideline
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/guideline"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.5"/>
+    </android.support.constraint.ConstraintLayout>
+
+
+</FrameLayout>
