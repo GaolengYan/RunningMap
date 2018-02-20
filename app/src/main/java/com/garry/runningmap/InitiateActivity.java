@@ -42,11 +42,13 @@ public class InitiateActivity extends AppCompatActivity implements View.OnClickL
         switch (v.getId()){
             case R.id.start_loc:
                 Toast.makeText(this, start.toString(), Toast.LENGTH_SHORT).show();
-                startActivity(intent);
+                intent.putExtra("status","起点");
+                startActivityForResult(intent, 1);
                 break;
             case R.id.end_loc:
                 Toast.makeText(this, end.toString(), Toast.LENGTH_SHORT).show();
-                startActivity(intent);
+                intent.putExtra("status","终点");
+                startActivityForResult(intent, 1);
                 break;
             case R.id.go_back:
                 finish();
@@ -80,6 +82,20 @@ public class InitiateActivity extends AppCompatActivity implements View.OnClickL
         start = now;
         end = now;
         intent.setClass(this, MapActivity.class);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode==1&&resultCode==1){
+            if (data.getStringExtra("status").equals("起点")){
+                start = data.getParcelableExtra("result");
+                startLoc.setText("经度"+start.longitude+":纬度"+start.latitude);
+            }else if(data.getStringExtra("status").equals("终点")){
+                end = data.getParcelableExtra("result");
+                endLoc.setText("经度"+end.longitude+":纬度"+end.latitude);
+            }
+        }
+
     }
 }
 

@@ -21,6 +21,7 @@ import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
 import com.baidu.mapapi.SDKInitializer;
 import com.baidu.mapapi.map.BaiduMap;
+import com.baidu.mapapi.map.MapPoi;
 import com.baidu.mapapi.map.MapStatusUpdate;
 import com.baidu.mapapi.map.MapStatusUpdateFactory;
 import com.baidu.mapapi.map.MapView;
@@ -28,12 +29,13 @@ import com.baidu.mapapi.map.MyLocationData;
 import com.baidu.mapapi.model.LatLng;
 import com.baidu.mapapi.search.core.SearchResult;
 import com.baidu.mapapi.search.poi.OnGetPoiSearchResultListener;
-import com.baidu.mapapi.search.poi.PoiCitySearchOption;
 import com.baidu.mapapi.search.poi.PoiDetailResult;
 import com.baidu.mapapi.search.poi.PoiDetailSearchOption;
 import com.baidu.mapapi.search.poi.PoiIndoorResult;
+import com.baidu.mapapi.search.poi.PoiNearbySearchOption;
 import com.baidu.mapapi.search.poi.PoiResult;
 import com.baidu.mapapi.search.poi.PoiSearch;
+import com.baidu.mapapi.search.poi.PoiSortType;
 import com.garry.runningmap.overlayutil.PoiOverlay;
 
 public class MapActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
@@ -47,6 +49,7 @@ public class MapActivity extends AppCompatActivity implements SearchView.OnQuery
     private SearchView mSearchView;
     private LatLng ll;
     private String city;
+    private String status;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,6 +113,26 @@ public class MapActivity extends AppCompatActivity implements SearchView.OnQuery
         }
     }
 
+    /**
+     * 地图单击事件回调函数
+     */
+    BaiduMap.OnMapClickListener clickListener = new BaiduMap.OnMapClickListener() {
+        //地图单击事件回调函数
+        public void onMapClick(LatLng point){
+            Toast.makeText(MapActivity.this, point.toString(), Toast.LENGTH_SHORT).show();
+        }
+
+        //地图内 Poi 单击事件回调函数
+        public boolean onMapPoiClick(MapPoi poi){
+            Toast.makeText(MapActivity.this, poi.getName(), Toast.LENGTH_SHORT).show();
+            return true;
+        }
+    };
+
+
+    /**
+    * 点击左上角返回
+    */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
@@ -156,11 +179,18 @@ public class MapActivity extends AppCompatActivity implements SearchView.OnQuery
             Toast.makeText(this, "查无结果", Toast.LENGTH_SHORT).show();
             return false;
         }
+        /*
         mPoiSearch.searchInCity((new PoiCitySearchOption())          //关键字检索POI
                 .city(city)                                          //获得的结果返回到OnGetPoiSearchResultListener类中
                 .keyword(query)
+                .pageNum(1));
+        */
+        mPoiSearch.searchNearby((new PoiNearbySearchOption())          //关键字检索POI
+                .sortType(PoiSortType.distance_from_near_to_far)       //获得的结果返回到OnGetPoiSearchResultListener类中
+                .location(ll)
+                .keyword(query)
+                .radius(30000)                                         //检索范围30公里
                 .pageNum(5));
-
         mSearchView.clearFocus();
         return true;
     }
@@ -189,19 +219,12 @@ public class MapActivity extends AppCompatActivity implements SearchView.OnQuery
             if (result.error == SearchResult.ERRORNO.NO_ERROR) {
 
                 baiduMap.clear();
-
                 //创建PoiOverlay
-
                 PoiOverlay overlay = new MapActivity.MyPoiOverlay(baiduMap);
-
                 //设置overlay可以处理标注点击事件
-
                 baiduMap.setOnMarkerClickListener(overlay);
-
                 //设置PoiOverlay数据
-
                 overlay.setData(result);
-
                 //添加PoiOverlay到地图中
                 overlay.addToMap();
                 overlay.zoomToSpan();
@@ -216,18 +239,13 @@ public class MapActivity extends AppCompatActivity implements SearchView.OnQuery
                         Toast.LENGTH_SHORT).show();
             } else {
                 // 正常返回结果的时候，此处可以获得很多相关信息
-                //点击overlay，屏幕下方弹出可交互提示栏，显示该POI的名字以及地址
-                Snackbar.make(mMapView, poiDetailResult.getName() + ": "
-                        + poiDetailResult.getAddress(), Snackbar.LENGTH_LONG)
-                        .setAction("设置终点", new View.OnClickListener() {
-                            //当点击交互栏的“设置终点”按钮时，进行导航
-                            @Override
-                            public void onClick(View v) {
-                                LatLng endPt = new LatLng(poiDetailResult.getLocation().latitude, poiDetailResult.getLocation().longitude);
-                                //终点endPt
+                //点击overlay放大至屏幕中央
+                MapStatusUpdate update = MapStatusUpdateFactory.newLatLngZoom(poiDetailResult.getLocation(), 30f);
+                baiduMap.animateMapStatus(update);
 
-                            }
-                        }).show();
+                //点击overlay，屏幕下方弹出可交互提示栏，显示该POI的名字以及地址
+                setPt(poiDetailResult);
+
             }
         }
 
@@ -254,6 +272,26 @@ public class MapActivity extends AppCompatActivity implements SearchView.OnQuery
         }
     }
 
+    /**
+     * 弹出交互框
+     */
+    private void setPt(final PoiDetailResult poiDetailResult){
+        Snackbar.make(mMapView, poiDetailResult.getName() + ": "
+                + poiDetailResult.getAddress(), Snackbar.LENGTH_LONG)
+                .setAction("设置"+status, new View.OnClickListener() {
+                    //当点击交互栏的“设置终点”按钮时，进行导航
+                    @Override
+                    public void onClick(View v) {
+                        LatLng Pt = new LatLng(poiDetailResult.getLocation().latitude, poiDetailResult.getLocation().longitude);
+                        Intent intent = new Intent();
+                        intent.putExtra("result", Pt);
+                        intent.putExtra("status", status);
+                        setResult(1, intent);
+                        finish();
+                    }
+                }).show();
+    }
+
 
     /**
      * 以上为各种POI方法
@@ -276,6 +314,8 @@ public class MapActivity extends AppCompatActivity implements SearchView.OnQuery
         mMapView.showZoomControls(false);                                                   //设置缩放按钮不显示
         mPoiSearch = PoiSearch.newInstance();                                               //创建POI查询实例
         mPoiSearch.setOnGetPoiSearchResultListener(poiListener);                            //绑定POI检索监听者
+        baiduMap.setOnMapClickListener(clickListener);                                      //绑定地图点击事件监听器
+        status = getIntent().getStringExtra("status");
     }
 
     //初始化定位设置

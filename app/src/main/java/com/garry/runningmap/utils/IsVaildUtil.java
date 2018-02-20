@@ -20,9 +20,6 @@ public class IsVaildUtil {
         return m.matches();
     }
     public static Boolean isGameNameVaild(String gameName){
-        if (gameName.equals("")){
-            return false;
-        }
-        return true;
+        return !gameName.equals("");
     }
 }
