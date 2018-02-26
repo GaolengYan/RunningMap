@@ -315,7 +315,7 @@ public class MapActivity extends AppCompatActivity implements SearchView.OnQuery
         mPoiSearch = PoiSearch.newInstance();                                               //创建POI查询实例
         mPoiSearch.setOnGetPoiSearchResultListener(poiListener);                            //绑定POI检索监听者
         baiduMap.setOnMapClickListener(clickListener);                                      //绑定地图点击事件监听器
-        status = getIntent().getStringExtra("status");
+        status = getIntent().getStringExtra("status");                                      //当前设置的是起点还是终点
     }
 
     //初始化定位设置

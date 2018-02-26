@@ -5,7 +5,10 @@
             android:id="@+id/nav_start"
             android:icon="@drawable/collect"
             android:title="发起比赛"/>
-
+        <item
+            android:id="@+id/my_game"
+            android:icon="@drawable/mygame"
+            android:title="我的比赛"/>
         <item
             android:id="@+id/nav_option"
             android:icon="@drawable/option"

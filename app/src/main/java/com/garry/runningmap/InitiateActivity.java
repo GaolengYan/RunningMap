@@ -30,10 +30,6 @@ public class InitiateActivity extends AppCompatActivity implements View.OnClickL
     }
 
 
-
-
-
-
     /**
     * 点击事件
     */
@@ -59,6 +55,11 @@ public class InitiateActivity extends AppCompatActivity implements View.OnClickL
                     break;
                 }
                 Toast.makeText(this, gameName.getText()+":"+start.toString()+":"+end.toString(), Toast.LENGTH_SHORT).show();
+                intent.setClass(this, GameActivity.class);
+                intent.putExtra("startLL", start);
+                intent.putExtra("endLL", end);
+                startActivity(intent);
+                finish();
                 break;
             default:
                 Toast.makeText(this, "default", Toast.LENGTH_SHORT).show();
@@ -68,6 +69,7 @@ public class InitiateActivity extends AppCompatActivity implements View.OnClickL
     /**
     * 实例化控件
     */
+
     private void initViews(){
         gameName = (EditText) findViewById(R.id.game_name);
         startLoc = (EditText) findViewById(R.id.start_loc);

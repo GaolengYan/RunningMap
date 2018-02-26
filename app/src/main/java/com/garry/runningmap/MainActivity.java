@@ -104,6 +104,9 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                         intent.putExtra("now_loc", ll);
                         startActivity(intent);
                         break;
+                    case R.id.my_game:
+
+                        break;
                     //点击“设置”
                     case R.id.nav_option:
 
