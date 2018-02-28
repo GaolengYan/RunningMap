@@ -37,7 +37,6 @@ public class GameActivity extends AppCompatActivity {
     private GameActivity.MyLocationListener mMyLocationListener = new GameActivity.MyLocationListener();
     private LatLng ll;//当前地点
     private LatLng startLL;//起点
-    private LatLng halfLL;//中点
     private LatLng endLL;//终点
     private LatLngBounds latlngBounds;
 
@@ -135,7 +134,6 @@ public class GameActivity extends AppCompatActivity {
         startLL = getIntent().getParcelableExtra("startLL");
         endLL = getIntent().getParcelableExtra("endLL");
         latlngBounds = new LatLngBounds.Builder().include(startLL).include(endLL).build();
-        halfLL = latlngBounds.getCenter();
     }
 
     //初始化定位设置

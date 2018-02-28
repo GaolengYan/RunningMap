@@ -109,7 +109,9 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                         break;
                     //点击“设置”
                     case R.id.nav_option:
-
+                        Intent intent1 = new Intent();
+                        intent1.setClass(MainActivity.this, CompassActivity.class);
+                        startActivity(intent1);
                         break;
                     //点击“关于”
                     case R.id.nav_about:
