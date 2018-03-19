@@ -33,6 +33,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.text.TextUtils;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.view.animation.AccelerateInterpolator;
@@ -58,7 +59,6 @@ public class CompassActivity extends Activity {
 
     View mCompassView;
     CompassView mPointer;
-    TextView mLocationTextView;
     LinearLayout mDirectionLayout;
     LinearLayout mAngleLayout;
 
@@ -107,22 +107,6 @@ public class CompassActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (mLocationProvider != null) {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for ActivityCompat#requestPermissions for more details.
-                return;
-            }
-            updateLocation(mLocationManager.getLastKnownLocation(mLocationProvider));
-            mLocationManager.requestLocationUpdates(mLocationProvider, 2000, 10, mLocationListener);
-        } else {
-            mLocationTextView.setText(R.string.cannot_get_location);
-        }
         if (mOrientationSensor != null) {
             mSensorManager.registerListener(mOrientationSensorEventListener, mOrientationSensor,
                     SensorManager.SENSOR_DELAY_GAME);
@@ -152,7 +136,6 @@ public class CompassActivity extends Activity {
 
         mCompassView = findViewById(R.id.view_compass);
         mPointer = (CompassView) findViewById(R.id.compass_pointer);
-        mLocationTextView = (TextView) findViewById(R.id.textview_location);
         mDirectionLayout = (LinearLayout) findViewById(R.id.layout_direction);
         mAngleLayout = (LinearLayout) findViewById(R.id.layout_angle);
 
@@ -299,38 +282,6 @@ public class CompassActivity extends Activity {
         return image;
     }
 
-    private void updateLocation(Location location) {
-        if (location == null) {
-            mLocationTextView.setText(R.string.getting_location);
-        } else {
-            StringBuilder sb = new StringBuilder();
-            double latitude = location.getLatitude();
-            double longitude = location.getLongitude();
-
-            if (latitude >= 0.0f) {
-                sb.append(getString(R.string.location_north, getLocationString(latitude)));
-            } else {
-                sb.append(getString(R.string.location_south, getLocationString(-1.0 * latitude)));
-            }
-
-            sb.append("    ");
-
-            if (longitude >= 0.0f) {
-                sb.append(getString(R.string.location_east, getLocationString(longitude)));
-            } else {
-                sb.append(getString(R.string.location_west, getLocationString(-1.0 * longitude)));
-            }
-
-            mLocationTextView.setText(sb.toString());
-        }
-    }
-
-    private String getLocationString(double input) {
-        int du = (int) input;
-        int fen = (((int) ((input - du) * 3600))) / 60;
-        int miao = (((int) ((input - du) * 3600))) % 60;
-        return String.valueOf(du) + "°" + String.valueOf(fen) + "'" + String.valueOf(miao) + "\"";
-    }
 
     private SensorEventListener mOrientationSensorEventListener = new SensorEventListener() {
 
@@ -353,24 +304,6 @@ public class CompassActivity extends Activity {
 
         @Override
         public void onStatusChanged(String provider, int status, Bundle extras) {
-            if (status != LocationProvider.OUT_OF_SERVICE) {
-                if (ActivityCompat.checkSelfPermission(getApplicationContext(),
-                        Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                        ActivityCompat.checkSelfPermission(getApplicationContext(),
-                                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    // TODO: Consider calling
-                    //    ActivityCompat#requestPermissions
-                    // here to request the missing permissions, and then overriding
-                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                    //                                          int[] grantResults)
-                    // to handle the case where the user grants the permission. See the documentation
-                    // for ActivityCompat#requestPermissions for more details.
-                    return;
-                }
-                updateLocation(mLocationManager.getLastKnownLocation(mLocationProvider));
-            } else {
-                mLocationTextView.setText(R.string.cannot_get_location);
-            }
         }
 
         @Override
@@ -383,8 +316,13 @@ public class CompassActivity extends Activity {
 
         @Override
         public void onLocationChanged(Location location) {
-            updateLocation(location);
         }
 
     };
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        finish();
+        return super.onTouchEvent(event);
+    }
 }

@@ -50,6 +50,7 @@ public class MapActivity extends AppCompatActivity implements SearchView.OnQuery
     private LatLng ll;
     private String city;
     private String status;
+//    private SuggestionSearch mSuggestionSearch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,15 +74,16 @@ public class MapActivity extends AppCompatActivity implements SearchView.OnQuery
         requestLocation();//启动定位器
 
     }
-        /**
-         * 启动定位器
-         */
-        private void requestLocation() {
-            //初始化定位器
-            initLocation();
-            //打开定位器
-            mLocationClient.start();
-        }
+
+    /**
+     * 启动定位器
+     */
+    private void requestLocation() {
+        //初始化定位器
+        initLocation();
+        //打开定位器
+        mLocationClient.start();
+    }
 
     /**
      * 跳转到当前位置
@@ -118,24 +120,27 @@ public class MapActivity extends AppCompatActivity implements SearchView.OnQuery
      */
     BaiduMap.OnMapClickListener clickListener = new BaiduMap.OnMapClickListener() {
         //地图单击事件回调函数
-        public void onMapClick(LatLng point){
+        public void onMapClick(LatLng point) {
             Toast.makeText(MapActivity.this, point.toString(), Toast.LENGTH_SHORT).show();
+            setPt(point);
         }
 
         //地图内 Poi 单击事件回调函数
-        public boolean onMapPoiClick(MapPoi poi){
+        public boolean onMapPoiClick(MapPoi poi) {
             Toast.makeText(MapActivity.this, poi.getName(), Toast.LENGTH_SHORT).show();
+
+            setPt(poi);
             return true;
         }
     };
 
 
     /**
-    * 点击左上角返回
-    */
+     * 点击左上角返回
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case android.R.id.home:
                 NavUtils.navigateUpFromSameTask(this);
                 return true;
@@ -175,7 +180,7 @@ public class MapActivity extends AppCompatActivity implements SearchView.OnQuery
      */
     @Override
     public boolean onQueryTextSubmit(String query) {
-        if (city==null){
+        if (city == null) {
             Toast.makeText(this, "查无结果", Toast.LENGTH_SHORT).show();
             return false;
         }
@@ -185,6 +190,14 @@ public class MapActivity extends AppCompatActivity implements SearchView.OnQuery
                 .keyword(query)
                 .pageNum(1));
         */
+/*      建议搜索
+        mSuggestionSearch.requestSuggestion((new SuggestionSearchOption())
+                .keyword(query)
+                .city(city)
+                .location(ll));
+*/
+
+
         mPoiSearch.searchNearby((new PoiNearbySearchOption())          //关键字检索POI
                 .sortType(PoiSortType.distance_from_near_to_far)       //获得的结果返回到OnGetPoiSearchResultListener类中
                 .location(ll)
@@ -199,6 +212,22 @@ public class MapActivity extends AppCompatActivity implements SearchView.OnQuery
     public boolean onQueryTextChange(String newText) {
         return false;
     }
+
+    /*
+        /**
+         * 在线建议检索监听
+         */
+/*    OnGetSuggestionResultListener listener = new OnGetSuggestionResultListener() {
+        public void onGetSuggestionResult(SuggestionResult res) {
+
+            if (res == null || res.getAllSuggestions() == null) {
+                return;
+                //未找到相关结果
+            }
+
+            //获取在线建议检索结果
+        }
+    };*/
 
 
     /**
@@ -275,10 +304,10 @@ public class MapActivity extends AppCompatActivity implements SearchView.OnQuery
     /**
      * 弹出交互框
      */
-    private void setPt(final PoiDetailResult poiDetailResult){
+    private void setPt(final PoiDetailResult poiDetailResult) {
         Snackbar.make(mMapView, poiDetailResult.getName() + ": "
                 + poiDetailResult.getAddress(), Snackbar.LENGTH_LONG)
-                .setAction("设置"+status, new View.OnClickListener() {
+                .setAction("设置" + status, new View.OnClickListener() {
                     //当点击交互栏的“设置终点”按钮时，进行导航
                     @Override
                     public void onClick(View v) {
@@ -292,6 +321,36 @@ public class MapActivity extends AppCompatActivity implements SearchView.OnQuery
                 }).show();
     }
 
+    private void setPt(final MapPoi poi) {
+        Snackbar.make(mMapView, poi.getName(), Snackbar.LENGTH_LONG)
+                .setAction("设置" + status, new View.OnClickListener() {
+                    //当点击交互栏的“设置终点”按钮时，进行导航
+                    @Override
+                    public void onClick(View v) {
+                        LatLng Pt = new LatLng(poi.getPosition().latitude, poi.getPosition().longitude);
+                        Intent intent = new Intent();
+                        intent.putExtra("result", Pt);
+                        intent.putExtra("status", status);
+                        setResult(1, intent);
+                        finish();
+                    }
+                }).show();
+    }
+    private void setPt(final LatLng point) {
+        Snackbar.make(mMapView, point.toString(), Snackbar.LENGTH_LONG)
+                .setAction("设置" + status, new View.OnClickListener() {
+                    //当点击交互栏的“设置终点”按钮时，进行导航
+                    @Override
+                    public void onClick(View v) {
+                        LatLng Pt = new LatLng(point.latitude, point.longitude);
+                        Intent intent = new Intent();
+                        intent.putExtra("result", Pt);
+                        intent.putExtra("status", status);
+                        setResult(1, intent);
+                        finish();
+                    }
+                }).show();
+    }
 
     /**
      * 以上为各种POI方法
@@ -316,6 +375,8 @@ public class MapActivity extends AppCompatActivity implements SearchView.OnQuery
         mPoiSearch.setOnGetPoiSearchResultListener(poiListener);                            //绑定POI检索监听者
         baiduMap.setOnMapClickListener(clickListener);                                      //绑定地图点击事件监听器
         status = getIntent().getStringExtra("status");                                      //当前设置的是起点还是终点
+//        mSuggestionSearch = SuggestionSearch.newInstance();
+//        mSuggestionSearch.setOnGetSuggestionResultListener(listener);
     }
 
     //初始化定位设置
@@ -349,8 +410,8 @@ public class MapActivity extends AppCompatActivity implements SearchView.OnQuery
         mLocationClient.stop();
         //mMapView.onDestroy();
         mPoiSearch.destroy();
+//        mSuggestionSearch.destroy();
     }
-
 
 
 }

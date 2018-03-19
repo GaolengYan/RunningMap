@@ -1,5 +1,6 @@
 package com.garry.runningmap;
 
+import android.content.Intent;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -15,6 +16,7 @@ import com.baidu.mapapi.SDKInitializer;
 import com.baidu.mapapi.map.BaiduMap;
 import com.baidu.mapapi.map.BitmapDescriptor;
 import com.baidu.mapapi.map.BitmapDescriptorFactory;
+import com.baidu.mapapi.map.MapPoi;
 import com.baidu.mapapi.map.MapStatusUpdate;
 import com.baidu.mapapi.map.MapStatusUpdateFactory;
 import com.baidu.mapapi.map.MapView;
@@ -22,6 +24,9 @@ import com.baidu.mapapi.map.MarkerOptions;
 import com.baidu.mapapi.map.MyLocationConfiguration;
 import com.baidu.mapapi.map.MyLocationData;
 import com.baidu.mapapi.map.OverlayOptions;
+import com.baidu.mapapi.map.PolygonOptions;
+import com.baidu.mapapi.map.Polyline;
+import com.baidu.mapapi.map.PolylineOptions;
 import com.baidu.mapapi.model.LatLng;
 import com.baidu.mapapi.model.LatLngBounds;
 import com.baidu.mapapi.utils.DistanceUtil;
@@ -38,7 +43,10 @@ public class GameActivity extends AppCompatActivity {
     private LatLng ll;//当前地点
     private LatLng startLL;//起点
     private LatLng endLL;//终点
-    private LatLngBounds latlngBounds;
+    private LatLngBounds latlngBounds;//包含了起点和终点的区域
+    private List<LatLng> walkLine;
+    private OverlayOptions walklineOverlay;
+    private double walkDistance = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,10 +77,22 @@ public class GameActivity extends AppCompatActivity {
         public void onReceiveLocation(BDLocation bdLocation) {
             //获取经纬度并封装到LatLng中
             ll = new LatLng(bdLocation.getLatitude(), bdLocation.getLongitude());
-
-
+            walkLine.add(ll);     //每次定位将当前位置加入行走路线列表中
+            if (DistanceUtil.getDistance(ll, endLL) < 50){
+                gameOver();
+            }
         }
     }
+
+    private void gameOver(){
+        for (int i = 1; i < walkLine.size(); i++) {
+            walkDistance += DistanceUtil.getDistance(walkLine.get(i-1), walkLine.get(i));
+        }
+        Toast.makeText(this, "您已完成比赛,一共走了"+walkDistance+"米", Toast.LENGTH_SHORT).show();
+        walklineOverlay = new PolylineOptions().width(10).color(0xAAFF0000).points(walkLine);
+        Polyline polyline = (Polyline) baiduMap.addOverlay(walklineOverlay);
+    }
+
 
     /**
      * 跳转到当前位置
@@ -88,9 +108,9 @@ public class GameActivity extends AppCompatActivity {
     private void addPoint(LatLng startLL, LatLng endLL) {
         //构建Marker图标
         BitmapDescriptor startLocation = BitmapDescriptorFactory
-                .fromResource(R.drawable.startlocation);
+                .fromResource(R.drawable.start_marker);
         BitmapDescriptor endLocation = BitmapDescriptorFactory
-                .fromResource(R.drawable.mygame);
+                .fromResource(R.drawable.end_marker);
         //创建OverlayOptions属性
         OverlayOptions startopeion = new MarkerOptions()
                 .position(startLL)
@@ -107,6 +127,24 @@ public class GameActivity extends AppCompatActivity {
         //在地图上批量添加
         baiduMap.addOverlays(options);
     }
+
+    /**
+     * 地图单击事件回调函数
+     */
+    BaiduMap.OnMapClickListener clickListener = new BaiduMap.OnMapClickListener() {
+        //地图单击事件回调函数
+        public void onMapClick(LatLng point){
+            Intent intent1 = new Intent();
+            intent1.setClass(GameActivity.this, CompassActivity.class);
+            startActivity(intent1);
+        }
+
+        //地图内 Poi 单击事件回调函数
+        public boolean onMapPoiClick(MapPoi poi){
+            Toast.makeText(GameActivity.this, poi.getName(), Toast.LENGTH_SHORT).show();
+            return true;
+        }
+    };
 
     //控件实例化
     private void initViews() {
@@ -134,6 +172,8 @@ public class GameActivity extends AppCompatActivity {
         startLL = getIntent().getParcelableExtra("startLL");
         endLL = getIntent().getParcelableExtra("endLL");
         latlngBounds = new LatLngBounds.Builder().include(startLL).include(endLL).build();
+        baiduMap.setOnMapClickListener(clickListener);                                      //绑定地图点击事件监听器
+        walkLine = new ArrayList<>();
     }
 
     //初始化定位设置

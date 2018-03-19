@@ -109,9 +109,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                         break;
                     //点击“设置”
                     case R.id.nav_option:
-                        Intent intent1 = new Intent();
-                        intent1.setClass(MainActivity.this, CompassActivity.class);
-                        startActivity(intent1);
+
                         break;
                     //点击“关于”
                     case R.id.nav_about:
@@ -220,7 +218,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         mPoiSearch.searchInCity((new PoiCitySearchOption())          //关键字检索POI
                 .city(city)                                          //获得的结果返回到OnGetPoiSearchResultListener类中
                 .keyword(query)
-                .pageNum(5));
+                .pageNum(0));
 
         mSearchView.clearFocus();
         return true;
@@ -279,16 +277,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                 // 正常返回结果的时候，此处可以获得很多相关信息
                 //点击overlay，屏幕下方弹出可交互提示栏，显示该POI的名字以及地址
                 Snackbar.make(mMapView, poiDetailResult.getName() + ": "
-                        + poiDetailResult.getAddress(), Snackbar.LENGTH_LONG)
-                        .setAction("设置终点", new View.OnClickListener() {
-                            //当点击交互栏的“设置终点”按钮时，进行导航
-                            @Override
-                            public void onClick(View v) {
-                                LatLng endPt = new LatLng(poiDetailResult.getLocation().latitude, poiDetailResult.getLocation().longitude);
-                                //终点endPt
-
-                            }
-                        }).show();
+                        + poiDetailResult.getAddress(), Snackbar.LENGTH_LONG).show();
             }
         }
 
